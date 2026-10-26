@@ -1,5 +1,8 @@
 {
   "name": "learn-pi-agents",
   "private": true,
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "typebox": "^1.4.3"
+  }
 }
