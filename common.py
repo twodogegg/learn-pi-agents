@@ -8,7 +8,7 @@ from agents import Agent, AsyncOpenAI, OpenAIChatCompletionsModel, Runner, funct
 from openai import DefaultAsyncHttpxClient
 
 
-def make_agent(instructions, tools=None, **kwargs):
+def make_agent(instructions, tools=None, name="时间助手", **kwargs):
     # 保留原项目的 Chat Completions 网关配置。
     base_url = os.getenv("PI_BASE_URL", "http://127.0.0.1:3425/v1")
     local = urlparse(base_url).hostname in {"127.0.0.1", "localhost", "::1"}
@@ -19,7 +19,7 @@ def make_agent(instructions, tools=None, **kwargs):
     )
     set_tracing_disabled(True)
     return Agent(
-        name="时间助手",
+        name=name,
         instructions=instructions,
         model=OpenAIChatCompletionsModel(
             model=os.getenv("PI_MODEL", "auto/auto"), openai_client=client
@@ -64,6 +64,15 @@ async def ask(agent, question, session=None, run_config=None):
             print(f"\n[工具调用] {event.item.raw_item}")
         elif event.type == "run_item_stream_event" and event.name == "tool_output":
             print(f"\n[工具结果] {event.item.output}")
+        elif event.type == "run_item_stream_event" and event.name in (
+            "handoff_requested",
+            "handoff_occured",
+        ):
+            raw = event.item.raw_item
+            if isinstance(raw, dict):  # handoff_occured：function_call_output
+                print(f"\n[任务转移完成] {raw.get('output')}")
+            else:  # handoff_requested：模型发起的 transfer_to_<name> 调用
+                print(f"\n[请求任务转移] {getattr(raw, 'name', raw)}")
     print()
     return result
 
