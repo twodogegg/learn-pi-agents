@@ -6,3 +6,4 @@ __pycache__/
 *.py[cod]
 build/
 *.egg-info/
+agent_05/studio.db
