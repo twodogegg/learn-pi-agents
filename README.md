@@ -36,6 +36,7 @@ python -m agent_03.steer
 python -m agent_04.finish_turn
 python -m agent_05.handoff
 python -m agent_05.handoff "你们多扣了我两次钱，我要投诉。"
+python -m agent_05.as_tool
 ```
 
 | 示例 | 内容 |
@@ -47,6 +48,7 @@ python -m agent_05.handoff "你们多扣了我两次钱，我要投诉。"
 | `agent_03.steer` | 工具运行期间准备新指令，通过调用前的输入过滤器在后续模型请求中注入，并在本次运行完成后发起追问。 |
 | `agent_04.finish_turn` | 工具返回后直接结束运行，工具输出即最终结果。 |
 | `agent_05.handoff` | 任务转移：`handoffs` 直接传 Agent 时用 `handoff_description` 提示何时转接；`handoff()` 定制工具名，并用 `input_type` + `on_handoff` 收集转移原因；指令要求先播报再转移，转接前那句话可从 `new_items` 取出。 |
+| `agent_05.as_tool` | `as_tool()` 委派子任务：导演把写剧本委派给编剧，编剧用 `read_project/read_outline/read_characters/write_script_page` 自己取资料并写入页面，导演再用 `read_script_page` 复核。演示模型上下文隔离但应用层 `context` 共享（`Runner.run(..., context=...)`），以及以存储层返回值而非智能体口头声明作为验收依据。 |
 
 `steer` 是近似示例：过滤器的改指令只进入模型请求，并不写入会话历史，也不能取消已发出的工具调用。追问是另一次 `Runner` 运行，并非 Pi 的 `followUp()` 队列。`stop_on_first_tool` 也不是 Pi 的通用 `finishTurn` 回调，它只针对工具输出。
 

@@ -54,9 +54,11 @@ def add_hours(iso: str, hours: float, timezone: str | None = None) -> str:
     return f"{timezone or '本地时区'}：{(start + timedelta(hours=hours)).astimezone(zone).isoformat()}"
 
 
-async def ask(agent, question, session=None, run_config=None):
+async def ask(agent, question, session=None, run_config=None, context=None):
     print(f"\n> {question}")
-    result = Runner.run_streamed(agent, question, session=session, run_config=run_config)
+    result = Runner.run_streamed(
+        agent, question, session=session, run_config=run_config, context=context
+    )
     async for event in result.stream_events():
         if event.type == "raw_response_event" and event.data.type == "response.output_text.delta":
             print(event.data.delta, end="", flush=True)
